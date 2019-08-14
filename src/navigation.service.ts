@@ -58,6 +58,8 @@ export class NavigationService {
       // no matching key found
       if (!keyName) return false;
 
+      e.preventDefault();
+
       // spatial navigation is blocked
       if (this.blockAllSpatialNavigation) return false;
 
