@@ -62,7 +62,7 @@ export class NavigationService {
       if (this.blockAllSpatialNavigation) return false;
 
       // action spatial navigation
-      if (keyName in NavigationServiceDirection) this.spatialNavigationAction(keyName as NavigationServiceDirection);
+      if (keyName in NavigationServiceDirection) this.spatialNavigationAction(<keyof typeof NavigationServiceDirection>keyName);
     }));
   }
 
@@ -110,9 +110,10 @@ export class NavigationService {
   }
 
   // action a new spatial navigation action
-  spatialNavigationAction(action: NavigationServiceDirection) {
+  spatialNavigationAction(action: keyof typeof NavigationServiceDirection) {
     let el = this.currentFocusedElement;
 
+    //let keyValue = NavigationServiceDirection[action];
     let keyValue = NavigationServiceDirection[action];
 
     // initiate focus action if we have active element
