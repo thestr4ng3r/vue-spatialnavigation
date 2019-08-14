@@ -100,7 +100,8 @@ export class NavigationService {
   spatialNavigationAction(action: NavigationServiceDirection) {
     let el = this.getFocusElementInFocus();
 
-    let keyValue = NavigationServiceDirection[action];
+    let keyValue = action; //NavigationServiceDirection[action];
+    console.log(keyValue);
 
     // initiate focus action if we have active element
     if (el) {

@@ -50,40 +50,41 @@ export class FocusElement {
 
   // directive initialisation
   constructor(vnode: VNode) {
-    if (vnode && vnode.elm) {
-      // find dom element in vnode
-      let elm = <any>vnode.elm;
-
-      // enforce a dom id on all focusable elements, if it does not exist generate an id
-      if (!elm.id) {
-        elm.id = "focus-el-" + Math.random().toString(36).replace(/[^a-z]+/g, "").substr(0, 10);
-      }
-
-      // cache dom properties in directive
-      this.id = elm.id;
-      this.isDefault = (elm.dataset.default === "" || elm.dataset.default === "true");
-      this._left = (elm.dataset.left || "");
-      this._right = (elm.dataset.right || "");
-      this._up = (elm.dataset.up || "");
-      this._down = (elm.dataset.down || "");
-
-      // do not cache the listener logic to prevent memory leaks
-      // instead cache the existance of a specific listener in the directive
-      if (vnode.componentOptions && vnode.componentOptions.listeners) {
-        let listeners = <any>vnode.componentOptions.listeners;
-        this._listeners = {
-          focus: !!listeners.focus,
-          blur: !!listeners.blur,
-          left: !!listeners.left,
-          right: !!listeners.right,
-          up: !!listeners.up,
-          down: !!listeners.down,
-          click: !!listeners.click,
-        };
-        listeners = undefined;
-      }
-      elm = undefined;
+    if (!vnode || !vnode.elm) {
+      throw new Error("!vnode || !vnode.elm");
     }
+    // find dom element in vnode
+    let elm = <any>vnode.elm;
+
+    // enforce a dom id on all focusable elements, if it does not exist generate an id
+    if (!elm.id) {
+      elm.id = "focus-el-" + Math.random().toString(36).replace(/[^a-z]+/g, "").substr(0, 10);
+    }
+
+    // cache dom properties in directive
+    this.id = elm.id;
+    this.isDefault = (elm.dataset.default === "" || elm.dataset.default === "true");
+    this._left = (elm.dataset.left || "");
+    this._right = (elm.dataset.right || "");
+    this._up = (elm.dataset.up || "");
+    this._down = (elm.dataset.down || "");
+
+    // do not cache the listener logic to prevent memory leaks
+    // instead cache the existance of a specific listener in the directive
+    if (vnode.componentOptions && vnode.componentOptions.listeners) {
+      let listeners = <any>vnode.componentOptions.listeners;
+      this._listeners = {
+        focus: !!listeners.focus,
+        blur: !!listeners.blur,
+        left: !!listeners.left,
+        right: !!listeners.right,
+        up: !!listeners.up,
+        down: !!listeners.down,
+        click: !!listeners.click,
+      };
+      listeners = undefined;
+    }
+    elm = undefined;
   }
 
   // cleanup when directive is destroyed
