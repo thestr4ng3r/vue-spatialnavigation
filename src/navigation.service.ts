@@ -1,5 +1,6 @@
 import { FocusElement } from "./focus.directive";
 import Vue from "vue";
+import {BehaviorSubject} from "rxjs";
 
 export enum NavigationServiceDirection {
   Up = "up",
@@ -14,6 +15,18 @@ export class NavigationService {
   focusAbleElements: Array<FocusElement> = new Array<FocusElement>();
   lastElementIdInFocus = "";
   blockAllSpatialNavigation = false;
+
+  private readonly _currentFocusedElementSubject = new BehaviorSubject<FocusElement | null>(null);
+  get currentFocusedElementObservable() {
+    return this._currentFocusedElementSubject.asObservable();
+  }
+  get currentFocusedElement(): FocusElement | null {
+    return this._currentFocusedElementSubject.value;
+  }
+  set currentFocusedElement(focusElement: FocusElement | null) {
+    this._currentFocusedElementSubject.next(focusElement);
+  }
+
 
   constructor(keys: { [key: string]: number | Array<number> }) {
     // bind keyCodes object from Vue config
@@ -49,7 +62,7 @@ export class NavigationService {
       if (this.blockAllSpatialNavigation) return false;
 
       // action spatial navigation
-      if (keyName in NavigationServiceDirection) this.spatialNavigationAction(<NavigationServiceDirection>keyName);
+      if (keyName in NavigationServiceDirection) this.spatialNavigationAction(keyName as NavigationServiceDirection);
     }));
   }
 
@@ -98,10 +111,9 @@ export class NavigationService {
 
   // action a new spatial navigation action
   spatialNavigationAction(action: NavigationServiceDirection) {
-    let el = this.getFocusElementInFocus();
+    let el = this.currentFocusedElement;
 
-    let keyValue = action; //NavigationServiceDirection[action];
-    console.log(keyValue);
+    let keyValue = NavigationServiceDirection[action];
 
     // initiate focus action if we have active element
     if (el) {
@@ -139,7 +151,7 @@ export class NavigationService {
   registerFocusElement(focusElement: FocusElement) {
     this.focusAbleElements.push(focusElement);
     // set initial focus if there is no active focus and current element is default
-    if (focusElement.isDefault && !this.getFocusElementInFocus()) {
+    if (focusElement.isDefault && !this.currentFocusedElement) {
       focusElement.focus();
     }
   }
@@ -150,13 +162,6 @@ export class NavigationService {
     if (index > -1) {
       let el = this.focusAbleElements.splice(index, 1);
       if (el.length > 0) el[0].destroy();
-    }
-  }
-
-  // get current component in focus
-  getFocusElementInFocus() {
-    for (const el of this.focusAbleElements) {
-      if (el.isFocus) return el;
     }
   }
 
@@ -176,8 +181,8 @@ export class NavigationService {
 
   // blurr all focusable components
   blurAllFocusElements() {
-    for (const el of this.focusAbleElements) {
-      if (el.isFocus) el.blur();
+    if(this.currentFocusedElement) {
+      this.currentFocusedElement.blur();
     }
   }
 }

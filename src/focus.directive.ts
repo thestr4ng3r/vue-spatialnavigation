@@ -41,8 +41,6 @@ export class FocusElement {
 
   // directive identifier (matches related DOM id)
   id: string;
-  // is element 'focussed'
-  isFocus = false;
   // is element 'selected'
   isSelect = false;
   // should element be 'focussed' by default on rendering
@@ -90,7 +88,6 @@ export class FocusElement {
   // cleanup when directive is destroyed
   destroy() {
     this.isDefault = false;
-    this.isFocus = false;
     this.isSelect = false;
     this._$el = undefined;
     this._left = undefined;
@@ -120,15 +117,13 @@ export class FocusElement {
     navigationService.blurAllFocusElements();
     // store focus action in navigation service so we can restore it if needed
     navigationService.lastElementIdInFocus = this.id;
-    // set the current element in focus
-    this.isFocus = true;
-    if (this.$el) {
-      this.$el.className += " focus";
-      if (this._listeners.focus) {
-        try {
-          this.$el.__vue__.$vnode.componentOptions.listeners.focus(this.id);
-        } catch (e) {}
-      }
+
+    navigationService.currentFocusedElement = this;
+
+    if (this.$el && this._listeners.focus) {
+      try {
+        this.$el.__vue__.$vnode.componentOptions.listeners.focus(this.id);
+      } catch (e) {}
     }
     // set 'native' browser focus on input elements and focusable elements.
     if (this.$el && ( this.$el.tabIndex !== -1 || this.$el.nodeName === "INPUT" || this.$el.nodeName === "TEXTAREA")) this.$el.focus();
@@ -136,14 +131,13 @@ export class FocusElement {
 
   // remove focus from element
   blur() {
-    this.isFocus = false;
-    if (this.$el) {
-      this.$el.className = this.$el.className.replace(/\s?\bfocus\b/, "");
-      if (this._listeners.blur) {
-        try {
-          this.$el.__vue__.$vnode.componentOptions.listeners.blur(this.id);
-        } catch (e) {}
-      }
+    if(navigationService.currentFocusedElement === this) {
+      navigationService.currentFocusedElement = null;
+    }
+    if (this.$el && this._listeners.blur) {
+      try {
+        this.$el.__vue__.$vnode.componentOptions.listeners.blur(this.id);
+      } catch (e) {}
     }
     // if (this.$el && (this.$el.nodeName === "INPUT" || this.$el.nodeName === "TEXTAREA")) this.$el.blur();
   }
@@ -152,13 +146,11 @@ export class FocusElement {
   // set element as selected
   select() {
     this.isSelect = true;
-    if (this.$el) this.$el.className += " select";
   }
 
   // remove selected state from element
   deSelect() {
     this.isSelect = false;
-    if (this.$el) this.$el.className.replace(/\bselect\b/, "");
   }
 
   //// spatial navigation
@@ -293,15 +285,8 @@ export default {
         navigationService.registerFocusElement(focusElement);
 
         // set this element in focus if no element has focus and this is marked default
-        if (focusElement.isDefault && !navigationService.getFocusElementInFocus()) {
+        if (focusElement.isDefault && !navigationService.currentFocusedElement) {
           focusElement.focus();
-        }
-      },
-      inserted: (el: any, binding: any, vnode: VNode) => {
-        if (vnode.elm) {
-          let focusElement = navigationService.getFocusElementById((<HTMLScriptElement>vnode.elm).id);
-          if (focusElement && focusElement.isFocus)
-            focusElement.focus();
         }
       },
       unbind: (el: any, binding: any, vnode: VNode) => {
