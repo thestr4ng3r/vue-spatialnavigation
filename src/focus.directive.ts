@@ -222,9 +222,7 @@ export class FocusElement {
 		if(!this.$el) {
 			return;
 		}
-		console.log("search");
 		for(let el = this.$el; el; el = el.parentNode) {
-			console.log("check " + el.id);
 			if(el.__vue__ && isFocusCoordinator(el.__vue__)) {
 				const nextID = el.__vue__.nextFocusElementID(this, direction);
 				if(nextID) {
@@ -240,7 +238,6 @@ export class FocusElement {
 			return;
 		}
 		const next = direction == FocusDirection.UP || direction == FocusDirection.LEFT ? this.$el.previousElementSibling : this.$el.nextElementSibling;
-		console.log("see");
 		if(next && next.id) {
 			this.doFocusElement(next.id);
 			return;
