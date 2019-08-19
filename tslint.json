@@ -4,9 +4,7 @@
 		"comment-format": [true,
 			"check-space"
 		],
-		"indent": [true,
-			"spaces"
-		],
+		"indent": [true, "tabs"],
 		"linebreak-style": [true, "LF"],
 		"one-line": [true,
 			"check-open-brace",
@@ -18,7 +16,7 @@
 			"avoid-escape"
 		],
 		"semicolon": [true, "always"],
-		"whitespace": [true,
+		"whitespace": [false,
 			"check-branch",
 			"check-decl",
 			"check-operator",
