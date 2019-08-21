@@ -172,10 +172,11 @@ export class NavigationService {
 	}
 
 	// find focusable component by id
-	getFocusElementById(id: string) {
+	getFocusElementById(id: string): FocusElement | null {
 		for(let el of this.focusAbleElements) {
 			if(el.id === id) return el;
 		}
+		return null;
 	}
 
 	// find component that should be focussed by default
