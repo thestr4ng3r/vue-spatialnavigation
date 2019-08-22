@@ -124,7 +124,7 @@ export class NavigationService {
 		let keyValue = NavigationServiceDirection[action];
 
 		// initiate focus action if we have active element
-		if(el) {
+		if(el && el.$el && document.body.contains(el.$el)) {
 			switch(keyValue) {
 				case NavigationServiceDirection.Up:
 					el.up();
