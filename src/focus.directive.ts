@@ -14,6 +14,7 @@ interface VNodeFocusListener {
 
 export interface SpatialNavigationOptions {
 	keyCodes?: { [key: string]: number | Array<number> } | undefined;
+	enableMouse?: boolean;
 	navigationService?: new (keys: { [key: string]: number | Array<number> }) => NavigationService;
 }
 
@@ -298,7 +299,12 @@ export default {
 				"enter": 13
 			};
 		}
-		navigationService = (options.navigationService) ? new options.navigationService(options.keyCodes) : new NavigationService(options.keyCodes);
+
+		if(options.enableMouse == undefined) {
+			options.enableMouse = true;
+		}
+
+		navigationService = (options.navigationService) ? new options.navigationService(options.keyCodes) : new NavigationService(options.keyCodes, options.enableMouse);
 
 		Vue.directive("focus", {
 			// directive lifecycle

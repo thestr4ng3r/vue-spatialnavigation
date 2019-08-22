@@ -31,7 +31,7 @@ export class NavigationService {
 	}
 
 
-	constructor(keys: { [key: string]: number | Array<number> }) {
+	constructor(keys: { [key: string]: number | Array<number> }, enableMouse: boolean) {
 		// bind keyCodes object from Vue config
 		for(let keyName in NavigationServiceDirection) {
 			let keyCode = keys[NavigationServiceDirection[keyName]];
@@ -47,7 +47,9 @@ export class NavigationService {
 		}
 
 		this.setupKeyBoardEvents();
-		this.setupMouseEvents();
+		if(enableMouse) {
+			this.setupMouseEvents();
+		}
 	}
 
 	setupKeyBoardEvents() {
