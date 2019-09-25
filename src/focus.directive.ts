@@ -1,6 +1,6 @@
 import { NavigationService } from "./navigation.service";
 import { VNode } from "vue";
-import { FocusDirection, isFocusCoordinator } from "./focuscoordinator";
+import { FocusCoordinator, FocusDirection, isFocusCoordinator } from "./focuscoordinator";
 
 interface VNodeFocusListener {
 	focus: boolean;
@@ -224,8 +224,16 @@ export class FocusElement {
 			return;
 		}
 		for(let el = this.$el; el; el = el.parentNode) {
-			if(el.__vue__ && isFocusCoordinator(el.__vue__)) {
-				const nextID = el.__vue__.nextFocusElementID(this, direction);
+			let coordinator: FocusCoordinator | null = null;
+			if(el.__vue__) {
+				if(isFocusCoordinator(el.__vue__)) {
+					coordinator = el.__vue__;
+				} else if(el.__vue__._vnode && el.__vue__._vnode.componentInstance && isFocusCoordinator(el.__vue__._vnode.componentInstance)) {
+					coordinator = el.__vue__._vnode.componentInstance;
+				}
+			}
+			if(coordinator) {
+				const nextID = coordinator.nextFocusElementID(this, direction);
 				if(nextID) {
 					this.doFocusElement(nextID);
 					break;
